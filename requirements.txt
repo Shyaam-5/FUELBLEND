@@ -4,9 +4,10 @@ numpy
 joblib
 scikit-learn
 lightgbm
-catboo
+catboost
 xgboost
 snowflake-connector-python
 python-dotenv
 Werkzeug
 gunicorn
+dotenv
