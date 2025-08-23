@@ -9,3 +9,4 @@ xgboost
 snowflake-connector-python
 python-dotenv
 Werkzeug
+gunicorn
