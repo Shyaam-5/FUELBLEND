@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 import os
-import mysql.connector
 import pandas as pd
 import pickle
 from datetime import datetime
