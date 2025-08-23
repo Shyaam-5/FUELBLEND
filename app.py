@@ -8,7 +8,8 @@ from werkzeug.utils import secure_filename
 import numpy as np
 import snowflake.connector
 import joblib
-
+from dotenv import load_dotenv
+load_dotenv() 
 # -------------------------
 # Flask Setup
 # -------------------------
@@ -20,13 +21,13 @@ app.secret_key = "your_secret_key"
 # Database Connection
 # -------------------------
 conn = snowflake.connector.connect(
-    user="SHYAAM",
-    password="Sshyaamkumar31",
-    account="QNRIWNF-PH56657",   # e.g., "xy12345.ap-southeast-1"
-    warehouse="COMPUTE_WH",
-    database="ML",
-    schema="SUMMA1",
-    role="ACCOUNTADMIN"   # optional, if you use roles
+    user=os.environ.get("SNOWFLAKE_USER"),
+    password=os.environ.get("SNOWFLAKE_PASSWORD"),
+    account=os.environ.get("SNOWFLAKE_ACCOUNT"),
+    warehouse=os.environ.get("SNOWFLAKE_WAREHOUSE"),
+    database=os.environ.get("SNOWFLAKE_DATABASE"),
+    schema=os.environ.get("SNOWFLAKE_SCHEMA"),
+    role=os.environ.get("SNOWFLAKE_ROLE")
 )
 
 cursor = conn.cursor()
@@ -197,3 +198,4 @@ def history():
 # -------------------------
 if __name__ == "__main__":
     app.run(debug=True)
+s
