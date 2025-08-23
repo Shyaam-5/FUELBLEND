@@ -6,6 +6,8 @@ import pickle
 from datetime import datetime
 from werkzeug.utils import secure_filename
 import numpy as np
+import snowflake.connector
+import joblib
 
 # -------------------------
 # Flask Setup
@@ -19,15 +21,42 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 # -------------------------
 # Database Connection
 # -------------------------
-conn = mysql.connector.connect(
-    host="localhost",
-    user="root",       # change to your MySQL username
-    password="1234",   # change to your MySQL password
-    database="ml_app"
+conn = snowflake.connector.connect(
+    user="SHYAAM",
+    password="Sshyaamkumar31",
+    account="QNRIWNF-PH56657",   # e.g., "xy12345.ap-southeast-1"
+    warehouse="COMPUTE_WH",
+    database="ML",
+    schema="SUMMA1",
+    role="ACCOUNTADMIN"   # optional, if you use roles
 )
+
 cursor = conn.cursor()
 from datetime import datetime
+pipeline = joblib.load("model_pipeline.pkl")
+def predict_with_pipeline(pipeline, X):
+    scaler = pipeline["scaler"]
+    lgb_model = pipeline["lgb_model"]
+    cat_model = pipeline["cat_model"]
+    ridge_model = pipeline["ridge_model"]
+    meta_model = pipeline["meta_model"]
+    residual_model = pipeline["residual_model"]
 
+    # Scale inputs
+    X_scaled = scaler.transform(X)
+
+    # Base model predictions
+    lgb_preds = lgb_model.predict(X_scaled)
+    cat_preds = cat_model.predict(X_scaled)
+    ridge_preds = ridge_model.predict(X_scaled)
+
+    # Stack predictions for meta model
+    X_meta = np.concatenate([lgb_preds, cat_preds, ridge_preds], axis=1)
+
+    # Final stacked + residual correction
+    meta_preds = meta_model.predict(X_meta)
+    final_preds = meta_preds + residual_model.predict(X_meta)
+    return final_preds
 @app.context_processor
 def inject_globals():
     return {"datetime": datetime}
@@ -114,20 +143,15 @@ def home():
 def upload():
     if request.method == "POST":
         file = request.files["file"]
-
-        # if not file:
-        #     return "No file uploaded"
-
-        test_data = pd.read_csv("./test.csv")
-        
+        test_data = pd.read_csv(file)
         # Keep IDs if present
         ids = test_data["ID"] if "ID" in test_data.columns else None
         if "ID" in test_data.columns:
             test_data = test_data.drop(columns=["ID"])
 
         # Run predictions using the new XGBoost model
-        preds = trained_model.predict(test_data)
-
+        # preds = trained_model.predict(test_data)
+        preds = predict_with_pipeline(pipeline, test_data)
         # Build results DataFrame
         submission = pd.DataFrame(
             preds,
