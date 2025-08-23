@@ -1,0 +1,100 @@
+<!-- templates/home.html -->
+{% extends "base.html" %}
+
+{% block title %}Dashboard - ML Prediction App{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="welcome-header mb-5">
+                <h1 class="display-5 fw-bold text-dark">Welcome, {{ username }}!</h1>
+                <p class="lead text-muted">Ready to make some predictions? Upload your data and get instant results.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Upload Card -->
+        <div class="col-md-6 col-lg-4">
+            <div class="feature-card h-100">
+                <div class="feature-icon">
+                    <i class="fas fa-upload"></i>
+                </div>
+                <h5 class="fw-bold">Upload & Predict</h5>
+                <p class="text-muted mb-4">Upload your CSV file and get ML predictions using our trained XGBoost model.</p>
+                <a href="{{ url_for('upload') }}" class="btn btn-primary">
+                    <i class="fas fa-upload me-2"></i>Start Prediction
+                </a>
+            </div>
+        </div>
+
+        <!-- History Card -->
+        <div class="col-md-6 col-lg-4">
+            <div class="feature-card h-100">
+                <div class="feature-icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                <h5 class="fw-bold">View History</h5>
+                <p class="text-muted mb-4">Access your previous predictions and download results from past uploads.</p>
+                <a href="{{ url_for('history') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-history me-2"></i>View History
+                </a>
+            </div>
+        </div>
+
+        <!-- Stats Card -->
+        <div class="col-md-6 col-lg-4">
+            <div class="feature-card h-100">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h5 class="fw-bold">Model Info</h5>
+                <p class="text-muted mb-4">Powered by XGBoost algorithm for accurate blend property predictions.</p>
+                <button class="btn btn-outline-secondary" disabled>
+                    <i class="fas fa-info-circle me-2"></i>Learn More
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="stats-section">
+                <h3 class="fw-bold mb-4">Quick Stats</h3>
+                <div class="row g-3">
+                    <div class="col-md-3 col-6">
+                        <div class="stat-card text-center">
+                            <i class="fas fa-brain text-primary mb-2"></i>
+                            <h5 class="fw-bold mb-1">XGBoost</h5>
+                            <small class="text-muted">ML Algorithm</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="stat-card text-center">
+                            <i class="fas fa-file-csv text-success mb-2"></i>
+                            <h5 class="fw-bold mb-1">CSV</h5>
+                            <small class="text-muted">Supported Format</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="stat-card text-center">
+                            <i class="fas fa-lightning-bolt text-warning mb-2"></i>
+                            <h5 class="fw-bold mb-1">Instant</h5>
+                            <small class="text-muted">Predictions</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="stat-card text-center">
+                            <i class="fas fa-download text-info mb-2"></i>
+                            <h5 class="fw-bold mb-1">Download</h5>
+                            <small class="text-muted">Results</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

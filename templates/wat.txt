@@ -1,0 +1,7 @@
+sign in
+home page
+navgiation area - upload test data ------> user data
+fetch and pass into model
+output prediction in format of sample output
+
+

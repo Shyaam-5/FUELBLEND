@@ -1,0 +1,75 @@
+<!-- templates/history.html -->
+{% extends "base.html" %}
+
+{% block title %}History - ML Prediction App{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header mb-4">
+                <h2 class="fw-bold">
+                    <i class="fas fa-history text-primary me-2"></i>Prediction History
+                </h2>
+                <p class="lead text-muted">View and access your previous prediction results.</p>
+            </div>
+        </div>
+    </div>
+
+    {% if predictions %}
+    <div class="row">
+        <div class="col-12">
+            <div class="history-container">
+                {% for prediction in predictions %}
+                <div class="history-item">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <div class="file-icon me-3">
+                                <i class="fas fa-file-csv"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">{{ prediction.filename }}</h6>
+                                <div class="d-flex align-items-center text-muted small">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    <span>{{ prediction.upload_time.strftime('%Y-%m-%d') }}</span>
+                                    <i class="fas fa-clock ms-3 me-1"></i>
+                                    <span>{{ prediction.upload_time.strftime('%H:%M') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="history-actions">
+                            {% if prediction.result %}
+                            <button class="btn btn-sm btn-outline-primary me-2">
+                                <i class="fas fa-eye me-1"></i>View
+                            </button>
+                            <button class="btn btn-sm btn-outline-success">
+                                <i class="fas fa-download me-1"></i>Download
+                            </button>
+                            {% else %}
+                            <span class="badge bg-warning">
+                                <i class="fas fa-clock me-1"></i>Processing
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="empty-state text-center py-5">
+                <i class="fas fa-history text-muted mb-3" style="font-size: 4rem; opacity: 0.3;"></i>
+                <h4 class="fw-bold text-muted mb-3">No Prediction History</h4>
+                <p class="text-muted mb-4">You haven't made any predictions yet. Start by uploading a CSV file.</p>
+                <a href="{{ url_for('upload') }}" class="btn btn-primary">
+                    <i class="fas fa-upload me-2"></i>Make Your First Prediction
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
