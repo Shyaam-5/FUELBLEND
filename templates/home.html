@@ -9,7 +9,7 @@
         <div class="col-12">
             <div class="welcome-header mb-5">
                 <h1 class="display-5 fw-bold text-dark">Welcome, {{ username }}!</h1>
-                <p class="lead text-muted">Ready to make some predictions? Upload your data and get instant results.</p>
+                <p class="lead text-muted">Advanced ML predictions with our stacked ensemble pipeline, powered by cloud infrastructure.</p>
             </div>
         </div>
     </div>
@@ -22,7 +22,7 @@
                     <i class="fas fa-upload"></i>
                 </div>
                 <h5 class="fw-bold">Upload & Predict</h5>
-                <p class="text-muted mb-4">Upload your CSV file and get ML predictions using our trained XGBoost model.</p>
+                <p class="text-muted mb-4">Upload your CSV file and get ML predictions using our advanced stacked ensemble pipeline with LightGBM, CatBoost, and Ridge models.</p>
                 <a href="{{ url_for('upload') }}" class="btn btn-primary">
                     <i class="fas fa-upload me-2"></i>Start Prediction
                 </a>
@@ -36,21 +36,21 @@
                     <i class="fas fa-history"></i>
                 </div>
                 <h5 class="fw-bold">View History</h5>
-                <p class="text-muted mb-4">Access your previous predictions and download results from past uploads.</p>
+                <p class="text-muted mb-4">Access your previous predictions stored securely in AWS S3 and managed through Snowflake data warehouse.</p>
                 <a href="{{ url_for('history') }}" class="btn btn-outline-primary">
                     <i class="fas fa-history me-2"></i>View History
                 </a>
             </div>
         </div>
 
-        <!-- Stats Card -->
+        <!-- Cloud Infrastructure Card -->
         <div class="col-md-6 col-lg-4">
             <div class="feature-card h-100">
                 <div class="feature-icon">
-                    <i class="fas fa-chart-bar"></i>
+                    <i class="fas fa-cloud"></i>
                 </div>
-                <h5 class="fw-bold">Model Info</h5>
-                <p class="text-muted mb-4">Powered by XGBoost algorithm for accurate blend property predictions.</p>
+                <h5 class="fw-bold">Cloud Infrastructure</h5>
+                <p class="text-muted mb-4">Enterprise-grade infrastructure with AWS S3 storage, Snowflake data warehouse, and scalable ML pipeline.</p>
                 <button class="btn btn-outline-secondary" disabled>
                     <i class="fas fa-info-circle me-2"></i>Learn More
                 </button>
@@ -58,38 +58,83 @@
         </div>
     </div>
 
-    <!-- Quick Stats -->
+    <!-- Enhanced Stats Section -->
     <div class="row mt-5">
         <div class="col-12">
             <div class="stats-section">
-                <h3 class="fw-bold mb-4">Quick Stats</h3>
+                <h3 class="fw-bold mb-4">Platform Overview</h3>
                 <div class="row g-3">
-                    <div class="col-md-3 col-6">
+                    <div class="col-lg-2 col-md-3 col-6">
                         <div class="stat-card text-center">
-                            <i class="fas fa-brain text-primary mb-2"></i>
-                            <h5 class="fw-bold mb-1">XGBoost</h5>
-                            <small class="text-muted">ML Algorithm</small>
+                            <i class="fas fa-layer-group text-primary mb-2"></i>
+                            <h6 class="fw-bold mb-1">Stacked Ensemble</h6>
+                            <small class="text-muted">ML Pipeline</small>
                         </div>
                     </div>
-                    <div class="col-md-3 col-6">
+                    <div class="col-lg-2 col-md-3 col-6">
                         <div class="stat-card text-center">
-                            <i class="fas fa-file-csv text-success mb-2"></i>
-                            <h5 class="fw-bold mb-1">CSV</h5>
-                            <small class="text-muted">Supported Format</small>
+                            <i class="fas fa-bolt text-warning mb-2"></i>
+                            <h6 class="fw-bold mb-1">LightGBM</h6>
+                            <small class="text-muted">Base Model</small>
                         </div>
                     </div>
-                    <div class="col-md-3 col-6">
+                    <div class="col-lg-2 col-md-3 col-6">
                         <div class="stat-card text-center">
-                            <i class="fas fa-lightning-bolt text-warning mb-2"></i>
-                            <h5 class="fw-bold mb-1">Instant</h5>
-                            <small class="text-muted">Predictions</small>
+                            <i class="fas fa-cat text-success mb-2"></i>
+                            <h6 class="fw-bold mb-1">CatBoost</h6>
+                            <small class="text-muted">Base Model</small>
                         </div>
                     </div>
-                    <div class="col-md-3 col-6">
+                    <div class="col-lg-2 col-md-3 col-6">
                         <div class="stat-card text-center">
-                            <i class="fas fa-download text-info mb-2"></i>
-                            <h5 class="fw-bold mb-1">Download</h5>
-                            <small class="text-muted">Results</small>
+                            <i class="fas fa-mountain text-info mb-2"></i>
+                            <h6 class="fw-bold mb-1">Ridge</h6>
+                            <small class="text-muted">Base Model</small>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-3 col-6">
+                        <div class="stat-card text-center">
+                            <i class="fas fa-cloud text-primary mb-2"></i>
+                            <h6 class="fw-bold mb-1">AWS S3</h6>
+                            <small class="text-muted">Storage</small>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-3 col-6">
+                        <div class="stat-card text-center">
+                            <i class="fas fa-snowflake text-info mb-2"></i>
+                            <h6 class="fw-bold mb-1">Snowflake</h6>
+                            <small class="text-muted">Data Warehouse</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pipeline Information -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="pipeline-info">
+                <div class="row align-items-center">
+                    <div class="col-lg-8">
+                        <h4 class="fw-bold mb-3">
+                            <i class="fas fa-cogs text-primary me-2"></i>Advanced ML Pipeline
+                        </h4>
+                        <p class="text-muted mb-3">
+                            Our sophisticated ensemble approach combines multiple machine learning algorithms 
+                            to deliver superior prediction accuracy. The pipeline includes feature scaling, 
+                            base model predictions, meta-learning, and residual correction for optimal performance.
+                        </p>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge bg-primary">Stacked Ensemble</span>
+                            <span class="badge bg-success">Meta-Learning</span>
+                            <span class="badge bg-info">Residual Correction</span>
+                            <span class="badge bg-warning">Feature Scaling</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 text-center">
+                        <div class="pipeline-diagram">
+                            <i class="fas fa-project-diagram text-primary" style="font-size: 4rem; opacity: 0.7;"></i>
                         </div>
                     </div>
                 </div>

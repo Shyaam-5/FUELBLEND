@@ -11,7 +11,7 @@
                 <h2 class="fw-bold">
                     <i class="fas fa-history text-primary me-2"></i>Prediction History
                 </h2>
-                <p class="lead text-muted">View and access your previous prediction results.</p>
+                <p class="lead text-muted">View and access your previous prediction results stored in the cloud.</p>
             </div>
         </div>
     </div>
@@ -19,6 +19,39 @@
     {% if predictions %}
     <div class="row">
         <div class="col-12">
+            <div class="history-stats mb-4">
+                <div class="row g-3">
+                    <div class="col-md-3 col-6">
+                        <div class="stat-card text-center">
+                            <i class="fas fa-file-csv text-success mb-2"></i>
+                            <h5 class="fw-bold mb-1">{{ predictions|length }}</h5>
+                            <small class="text-muted">Total Predictions</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="stat-card text-center">
+                            <i class="fas fa-cloud text-info mb-2"></i>
+                            <h5 class="fw-bold mb-1">S3</h5>
+                            <small class="text-muted">Cloud Storage</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="stat-card text-center">
+                            <i class="fas fa-database text-warning mb-2"></i>
+                            <h5 class="fw-bold mb-1">Snowflake</h5>
+                            <small class="text-muted">Data Warehouse</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="stat-card text-center">
+                            <i class="fas fa-layer-group text-primary mb-2"></i>
+                            <h5 class="fw-bold mb-1">Stacked</h5>
+                            <small class="text-muted">ML Pipeline</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="history-container">
                 {% for prediction in predictions %}
                 <div class="history-item">
@@ -29,26 +62,40 @@
                             </div>
                             <div>
                                 <h6 class="fw-bold mb-1">{{ prediction.filename }}</h6>
-                                <div class="d-flex align-items-center text-muted small">
+                                <div class="d-flex align-items-center text-muted small mb-1">
                                     <i class="fas fa-calendar me-1"></i>
-                                    <span>{{ prediction.upload_time.strftime('%Y-%m-%d') }}</span>
-                                    <i class="fas fa-clock ms-3 me-1"></i>
-                                    <span>{{ prediction.upload_time.strftime('%H:%M') }}</span>
+                                    <span>{{ prediction.upload_time }}</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-success me-2">
+                                        <i class="fas fa-cloud me-1"></i>Cloud Stored
+                                    </span>
+                                    {% if prediction.result %}
+                                    <span class="badge bg-info">
+                                        <i class="fas fa-check me-1"></i>Processed
+                                    </span>
+                                    {% else %}
+                                    <span class="badge bg-warning">
+                                        <i class="fas fa-clock me-1"></i>Processing
+                                    </span>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
                         <div class="history-actions">
                             {% if prediction.result %}
-                            <button class="btn btn-sm btn-outline-primary me-2">
-                                <i class="fas fa-eye me-1"></i>View
-                            </button>
-                            <button class="btn btn-sm btn-outline-success">
-                                <i class="fas fa-download me-1"></i>Download
-                            </button>
+                            <a href="{{ url_for('view_prediction', prediction_id=prediction.id) }}" 
+                               class="btn btn-sm btn-outline-primary me-2">
+                                <i class="fas fa-eye me-1"></i>View Results
+                            </a>
+                            <a href="{{ url_for('download', prediction_id=prediction.id) }}" 
+                               class="btn btn-sm btn-outline-success">
+                                <i class="fas fa-download me-1"></i>Download CSV
+                            </a>
                             {% else %}
-                            <span class="badge bg-warning">
-                                <i class="fas fa-clock me-1"></i>Processing
-                            </span>
+                            <button class="btn btn-sm btn-outline-secondary" disabled>
+                                <i class="fas fa-spinner fa-spin me-1"></i>Processing...
+                            </button>
                             {% endif %}
                         </div>
                     </div>
@@ -63,7 +110,7 @@
             <div class="empty-state text-center py-5">
                 <i class="fas fa-history text-muted mb-3" style="font-size: 4rem; opacity: 0.3;"></i>
                 <h4 class="fw-bold text-muted mb-3">No Prediction History</h4>
-                <p class="text-muted mb-4">You haven't made any predictions yet. Start by uploading a CSV file.</p>
+                <p class="text-muted mb-4">You haven't made any predictions yet. Start by uploading a CSV file to see the power of our stacked ML pipeline.</p>
                 <a href="{{ url_for('upload') }}" class="btn btn-primary">
                     <i class="fas fa-upload me-2"></i>Make Your First Prediction
                 </a>

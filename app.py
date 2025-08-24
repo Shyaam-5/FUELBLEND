@@ -8,13 +8,17 @@ import numpy as np
 import snowflake.connector
 import joblib
 from dotenv import load_dotenv
-load_dotenv() 
+import boto3
+from datetime import datetime
+from io import StringIO
+import json
+
 # -------------------------
 # Flask Setup
 # -------------------------
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
-
+load_dotenv() 
 
 # -------------------------
 # Database Connection
@@ -29,9 +33,19 @@ conn = snowflake.connector.connect(
     role=os.environ.get("SNOWFLAKE_ROLE")
 )
 
-cursor = conn.cursor()
-from datetime import datetime
+cursor = conn.cursor() 
+
+s3 = boto3.client(
+    "s3",
+    aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+    aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+    region_name=os.getenv("AWS_DEFAULT_REGION")
+)
+csv_buffer = StringIO()
+
 pipeline = joblib.load("models/model_pipeline.pkl")
+
+
 def predict_with_pipeline(pipeline, X):
     scaler = pipeline["scaler"]
     lgb_model = pipeline["lgb_model"]
@@ -55,6 +69,8 @@ def predict_with_pipeline(pipeline, X):
     meta_preds = meta_model.predict(X_meta)
     final_preds = meta_preds + residual_model.predict(X_meta)
     return final_preds
+
+
 @app.context_processor
 def inject_globals():
     return {"datetime": datetime}
@@ -142,14 +158,15 @@ def upload():
     if request.method == "POST":
         file = request.files["file"]
         test_data = pd.read_csv(file)
+
         # Keep IDs if present
         ids = test_data["ID"] if "ID" in test_data.columns else None
         if "ID" in test_data.columns:
             test_data = test_data.drop(columns=["ID"])
 
-        # Run predictions using the new XGBoost model
-        # preds = trained_model.predict(test_data)
+        # Run predictions using the stacked pipeline
         preds = predict_with_pipeline(pipeline, test_data)
+
         # Build results DataFrame
         submission = pd.DataFrame(
             preds,
@@ -158,8 +175,33 @@ def upload():
         if ids is not None:
             submission.insert(0, "ID", ids)
 
-        # Optionally save to CSV
-        submission.to_csv("uploaded_submission.csv", index=False)
+        # ---- Upload to S3 ----
+        bucket_name = os.getenv("S3_BUCKET")
+        s3_key = f"predictions/{session['user_id']}_{datetime.now().strftime('%Y%m%d%H%M%S')}.csv"
+
+        csv_buffer = StringIO()
+        submission.to_csv(csv_buffer, index=False)
+
+        s3.put_object(
+            Bucket=bucket_name,
+            Key=s3_key,
+            Body=csv_buffer.getvalue(),
+            ContentType="text/csv"
+        )
+
+        s3_path = f"s3://{bucket_name}/{s3_key}"
+
+        # ---- Store in Snowflake ----
+        cursor.execute(
+    """
+    INSERT INTO predictions (user_id, filename, upload_time, file_path, result)
+    VALUES (%s, %s, CURRENT_TIMESTAMP, %s, %s)
+    """,
+    (session["user_id"], file.filename, s3_path, submission.to_json())
+)
+
+
+        conn.commit()
 
         # Convert DataFrame to list of dicts for Jinja
         results = submission.to_dict(orient="records")
@@ -173,26 +215,72 @@ def upload():
 # -------------------------
 @app.route("/history")
 def history():
-    if "user_id" not in session:
-        return redirect(url_for("login"))
-
-    cursor.execute(
-        "SELECT filename, upload_time, result FROM predictions WHERE user_id=%s ORDER BY upload_time DESC",
-        (session["user_id"],)
-    )
+    cursor.execute("SELECT id, filename, upload_time, file_path, result FROM predictions WHERE user_id = %s", (session["user_id"],))
     rows = cursor.fetchall()
 
     predictions = []
     for row in rows:
         predictions.append({
-            "filename": row[0],
-            "upload_time": row[1],
-            "result": row[2]
+            "id": row[0],
+            "filename": row[1],
+            # convert string to datetime
+            "upload_time": row[2].strftime("%Y-%m-%d %H:%M") if hasattr(row[2], "strftime") else row[2],
+            "file_path": row[3],
+            "result": row[4],
         })
 
     return render_template("history.html", predictions=predictions)
 
+
 # -------------------------
+# View Results
+# -------------------------
+@app.route("/view/<int:prediction_id>")
+def view_prediction(prediction_id):
+    cursor.execute("SELECT result FROM predictions WHERE id=%s", (prediction_id,))
+    row = cursor.fetchone()
+    if not row:
+        return "Not found", 404
+
+    result_json = row[0]
+    results = pd.DataFrame(json.loads(result_json))  # JSON → DataFrame
+
+    return render_template(
+        "results.html",
+        predictions=results.to_dict(orient="records"),
+        columns=results.columns
+    )
+
+
+# -------------------------
+# Download CSV from S3
+# -------------------------
+@app.route("/download/<int:prediction_id>")
+def download(prediction_id):
+    cursor.execute("SELECT file_path FROM predictions WHERE id=%s", (prediction_id,))
+    row = cursor.fetchone()
+    if not row:
+        flash("File not found", "danger")
+        return redirect(url_for("history"))
+
+    file_path = row[0]  # s3://bucket/.../file.csv
+
+    # Extract bucket & key from file_path
+    bucket_name = file_path.split("/")[2]
+    key = "/".join(file_path.split("/")[3:])
+
+    # Get file from S3
+    file_obj = s3.get_object(Bucket=bucket_name, Key=key)
+    file_content = file_obj["Body"].read()
+
+    return (
+        file_content,
+        200,
+        {
+            "Content-Type": "text/csv",
+            "Content-Disposition": f"attachment; filename={key.split('/')[-1]}"
+        },
+    )
 # Run Flask
 # -------------------------
 if __name__ == "__main__":
